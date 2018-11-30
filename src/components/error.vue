@@ -8,7 +8,7 @@
   </div>
 </template>
 <<script>
-import { Box, Icon } from 'vux'
+import {Box, Icon} from 'vux'
 export default {
   components: {
     Box,
