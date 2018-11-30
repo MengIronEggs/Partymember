@@ -1,0 +1,839 @@
+<template>
+  <div class="bg start">
+      <div class="textContent"></div>
+      <div class="biji">
+        <img class="bijimg" :src="text" alt="">
+      </div>
+      <div class="InputText">
+          <div class="labelStyle">
+            <div class="tities" >姓&nbsp;&nbsp;&nbsp;&nbsp;名</div>
+            <div class="infos">
+               <x-input v-model="name" @on-change="handlechange" @on-blur="handleblurs"></x-input>
+            </div>
+          </div>
+          <div class="labelStyle" v-if="isrepeatname" style="border-top:none;">
+            <popup-picker class="leftNamesCard"  value-text-align='left' :data="companyList"  v-model="company"  placeholder="请选择公司"></popup-picker>
+            <div class="tities tities1">公&nbsp;&nbsp;司</div>
+            <div class="infos">
+              <span class="info_city">
+                {{company[0]}}
+              </span>
+            </div>
+          </div>
+          
+           <div class="position">
+            <button class='button1' @click="next">开始答题</button>
+          </div>
+      </div>
+  </div>
+</template>
+<script>
+import { XInput, Selector } from "vux";
+import { setTimeout } from 'timers';
+import text from '../assets/guize02.png'
+export default {
+  components: {
+    XInput,
+    Selector
+  },
+  data() {
+    return {
+      name: "",
+      tel: "",
+      text: text,
+      place: "请选择公司",
+      company: ["请选择公司"],
+      openid: "",
+      department:"",//部门
+      isrepeatname: false, //重名
+      infoData: {
+        name: '',
+        depart: '',
+        company: '',
+      }, //人员信息
+      companyList: [
+        []
+      ],
+      personList:[
+        {company:"国安城市",depart:"公司领导",name:"刘春"},
+        {company:"国安城市",depart:"公司领导",name:"杨小航"},
+        {company:"国安城市",depart:"公司领导",name:"侯露"},
+        {company:"国安城市",depart:"公司领导",name:"李前进"},
+        {company:"国安城市",depart:"公司领导",name:"刘灯"},
+        {company:"国安城市",depart:"公司领导",name:"巩振华"},
+        {company:"国安城市",depart:"党务人事部",name:"吴建军"},
+        {company:"国安城市",depart:"运营管理部",name:"贾靓"},
+        {company:"国安城市",depart:"战略投资部",name:"杨秀"},
+        {company:"国安城市",depart:"产品开发管理部",name:"朱杰"},
+        {company:"国安城市",depart:"成本采购部",name:"李家奇"},
+        {company:"国安城市",depart:"成本采购部",name:"王晓"},
+        {company:"国安城市",depart:"资金财务部",name:"荣娟"},
+        {company:"国安城市",depart:"行政综合部",name:"史拥宾"},
+        {company:"国安城市",depart:"行政综合部",name:"焦阳"},
+        {company:"国安城市",depart:"党务人事部",name:"高红梅"},
+        {company:"国安城市",depart:"党务人事部",name:"闫旭"},
+        {company:"国安城市",depart:"党务人事部",name:"王兰振"},
+        {company:"国安城市",depart:"党务人事部",name:"吴建华"},
+        {company:"国安城市",depart:"党务人事部",name:"袁影"},
+        {company:"国安城市",depart:"内蒙古山东项目组",name:"张发勋"},
+        {company:"国安城市",depart:"昆明项目组",name:"戴向阳"},
+        {company:"国安城市",depart:"昆明项目组",name:"王连海"},
+        {company:"北京公司",depart:"公司领导",name:"王永峰"},
+        {company:"北京公司",depart:"公司领导",name:"孟娟"},
+        {company:"北京公司",depart:"公司领导",name:"杨悦"},
+        {company:"北京公司",depart:"开发管理部",name:"刘建"},
+        {company:"北京公司",depart:"设计管理部",name:"张锦英"},
+        {company:"北京公司",depart:"农业组",name:"吕光强"},
+        {company:"北京公司",depart:"工程管理部",name:"潘晓"},
+        {company:"北京公司",depart:"营销管理部",name:"莫凡"},
+        {company:"北京公司",depart:"党委办公室",name:"陈奔阳"},
+        {company:"北京公司",depart:"工程管理部",name:"曾鹏程"},
+        {company:"北京公司",depart:"成本合约部",name:"汤水清"},
+        {company:"北京公司",depart:"综合管理部",name:"卢学丽"},
+        {company:"北京公司",depart:"开发管理部",name:"何新"},
+        {company:"北京公司",depart:"开发管理部",name:"荀丽娜"},
+        {company:"北京公司",depart:"营销管理部",name:"陈安琪"},
+        {company:"北京公司",depart:"综合管理部",name:"高玥"},
+        {company:"北京公司",depart:"资金财务部",name:"李娜"},
+        {company:"北京公司",depart:"资金财务部",name:"杨丹"},
+        {company:"北京公司",depart:"工程管理部",name:"高曙宁"},
+        {company:"北京公司",depart:"开发管理部",name:"李小龙"},
+        {company:"北京公司",depart:"开发管理部",name:"李琦"},
+        {company:"北京公司",depart:"成本合约部",name:"曹珍"},
+        {company:"北京公司",depart:"资金财务部",name:"刘冰洋"},
+        {company:"北京公司",depart:"战略运营部",name:"金斯坦"},
+        {company:"北京公司",depart:"拆迁管理部",name:"贾立斌"},
+        {company:"北京公司",depart:"战略运营部",name:"吴洁"},
+        {company:"北京公司",depart:"综合管理部",name:"林萍"},
+        {company:"一城控股",depart:"公司领导",name:"姜玉明"},
+        {company:"一城控股",depart:"公司领导",name:"穆飞"},
+        {company:"一城控股",depart:"公司领导",name:"郭敬跃"},
+        {company:"一城控股",depart:"资金财务部",name:"段洪雷"},
+        {company:"一城控股",depart:"党委办公室",name:"段华伟"},
+        {company:"一城控股",depart:"战略运营部",name:"刘多立"},
+        {company:"一城控股",depart:"资金财务部",name:"宛晶"},
+        {company:"一城控股",depart:"综合管理部",name:"谢丽娟"},
+        {company:"一城控股",depart:"设计管理部",name:"林军"},
+        {company:"一城控股",depart:"综合管理部",name:"刘佳"},
+        {company:"一城控股",depart:"工程管理部",name:"张金柱"},
+        {company:"一城控股",depart:"开发管理部",name:"张旭"},
+        {company:"一城控股",depart:"开发管理部",name:"周建宇"},
+        {company:"一城控股",depart:"资金财务部",name:"朱竣"},
+        {company:"一城控股",depart:"工程管理部",name:"李青松"},
+        {company:"一城控股",depart:"工程管理部",name:"赵国良"},
+        {company:"一城控股",depart:"开发管理部",name:"刘政"},
+        {company:"一城控股",depart:"资金财务部",name:"冯晔"},
+        {company:"一城控股",depart:"开发管理部",name:"张彬"},
+        {company:"一城控股",depart:"成本采购部",name:"崔景余"},
+        {company:"一城控股",depart:"成本采购部",name:"隋鑫"},
+        {company:"一城控股",depart:"综合管理部",name:"陈登智"},
+        {company:"一城控股",depart:"工程管理部",name:"高洋"},
+        {company:"一城控股",depart:"设计管理部",name:"李倩倩"},
+        {company:"一城控股",depart:"设计管理部",name:"王希"},
+        {company:"一城会展",depart:"公司领导",name:"张建军"},
+        {company:"一城会展",depart:"演艺事业部",name:"刘岩"},
+        {company:"一城会展",depart:"会议会展事业部",name:"赵颖硕"},
+        {company:"一城会展",depart:"战略中心",name:"康玉"},
+        {company:"一城会展",depart:"财务中心",name:"李君娜"},
+        {company:"一城会展",depart:"行政综合部",name:"张凤刚"},
+        {company:"一城会展",depart:"行政综合部",name:"杨福生"},
+        {company:"一城会展",depart:"行政综合部",name:"路海峰"},
+        {company:"一城会展",depart:"行政综合部",name:"刘瑞东"},
+        {company:"一城会展",depart:"保卫部",name:"阚超明"},
+        {company:"一城会展",depart:"保卫部",name:"李宏治"},
+        {company:"一城会展",depart:"保卫部",name:"王福刚"},
+        {company:"一城会展",depart:"保卫部",name:"成晓明"},
+        {company:"一城会展",depart:"保卫部",name:"孙立国"},
+        {company:"一城会展",depart:"保卫部",name:"宋福林"},
+        {company:"一城会展",depart:"保卫部",name:"李士强"},
+        {company:"一城会展",depart:"工程信息部",name:"阚伶海"},
+        {company:"一城会展",depart:"规划建设管理中心",name:"杜德新"},
+        {company:"一城会展",depart:"工程信息部",name:"纪雨"},
+        {company:"一城会展",depart:"党务人事部",name:"雷会兰"},
+        {company:"一城会展",depart:"成本采购部",name:"李光斌"},
+        {company:"一城会展",depart:"党务人事部",name:"崔文跃"},
+        {company:"一城会展",depart:"景区管理部",name:"赵国营"},
+        {company:"一城会展",depart:"安全生产办公室",name:"董志刚"},
+        {company:"一城会展",depart:"安全生产办公室",name:"王越先"},
+        {company:"一城会展",depart:"安全生产办公室",name:"陈光"},
+        {company:"一城会展",depart:"安全生产办公室",name:"何全会"},
+        {company:"一城会展",depart:"足球基地管理部",name:"孙建明"},
+        {company:"一城会展",depart:"演艺事业部",name:"刘东升"},
+        {company:"一城会展",depart:"演艺事业部",name:"闫亚光"},
+        {company:"一城会展",depart:"演艺事业部",name:"张凯夫"},
+        {company:"一城会展",depart:"演艺事业部",name:"魏淑敏"},
+        {company:"一城会展",depart:"演艺事业部",name:"吴金彪"},
+        {company:"一城会展",depart:"演艺事业部",name:"裴金全"},
+        {company:"一城会展",depart:"演艺事业部",name:"杨丽海"},
+        {company:"一城会展",depart:"演艺事业部",name:"左拴柱"},
+        {company:"一城会展",depart:"演艺事业部",name:"韩福国"},
+        {company:"一城会展",depart:"商业事业部",name:"孙含斌"},
+        {company:"一城会展",depart:"餐饮事业部",name:"刘亚杰"},
+        {company:"一城会展",depart:"餐饮事业部",name:"宫姝毅"},
+        {company:"一城会展",depart:"会议会展事业部",name:"唐明顺"},
+        {company:"一城会展",depart:"商业娱乐事业部",name:"余文利"},
+        {company:"一城会展",depart:"战略中心",name:"宋存洋"},
+        {company:"一城会展",depart:"成本中心",name:"许敬"},
+        {company:"一城会展",depart:"行政综合部",name:"米玉柏"},
+        {company:"国安社区（北京）科技有限公司",depart:"公司领导",name:"党艳梅"},
+        {company:"国安社区（北京）科技有限公司",depart:"城市管理中心",name:"高强"},
+        {company:"国安社区（北京）科技有限公司",depart:"风控管理中心",name:"剧宏波"},
+        {company:"国安社区（北京）科技有限公司",depart:"监事会",name:"贾颢"},
+        {company:"国安社区（北京）科技有限公司",depart:"董事会办公室",name:"高丽娜"},
+        {company:"国安社区（北京）科技有限公司",depart:"董事会办公室",name:"陈岚"},
+        {company:"国安社区（北京）科技有限公司",depart:"综合管理中心",name:"蒋楠"},
+        {company:"国安社区（北京）科技有限公司",depart:"运营管理中心",name:"王悦晖"},
+        {company:"国安社区（北京）科技有限公司",depart:"综合管理中心",name:"申江涛"},
+        {company:"国安社区（北京）科技有限公司",depart:"综合管理中心",name:"薛永祥"},
+        {company:"国安社区（北京）科技有限公司",depart:"人力资源中心",name:"宋东梅"},
+        {company:"国安社区（北京）科技有限公司",depart:"资金财务中心",name:"李强"},
+        {company:"国安社区（北京）科技有限公司",depart:"资金财务中心",name:"黄玲玲"},
+        {company:"国安社区（北京）科技有限公司",depart:"资金财务中心",name:"于宏敏"},
+        {company:"国安社区（北京）科技有限公司",depart:"人力资源中心",name:"沈丽平"},
+        {company:"国安社区（北京）科技有限公司",depart:"人力资源中心",name:"张玲"},
+        {company: "国安社区（北京）科技有限公司",depart:"资金财务中心",name: "刘京瑶"},
+        {company: "国安社区（北京）科技有限公司",depart:"董事会办公室",name:"杨柳"},
+        {company: "国安社区（北京）科技有限公司",depart:"城市管理中心",name:"谢勇"},
+        {company: "国安社区（北京）科技有限公司",depart:"城市管理中心",name:"吕飞"},
+        {company: "国安社区（北京）科技有限公司",depart:"家务事",name:"姜宇平"},
+        {company: "国安社区（北京）科技有限公司",depart:"运营管理中心",name:"张妍"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "任晴清"},
+        {company: "国安社区（北京）科技有限公司",depart:"公共事务中心",name: "赵杉楠"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "张国杰"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "刘畅"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "张小波"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "李娟"},
+        {company: "国安社区（北京）科技有限公司",depart:"平台开发中心",name: "韩娜"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "米郢"},
+        {company: "国安社区（北京）科技有限公司",depart:"公共事务中心",name: "白易彬"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "崔一佳"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "苗艳超"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "闫焓"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "花香"},
+        {company: "国安社区（北京）科技有限公司",depart:"产品管理中心",name: "熊颖琛"},
+        {company: "国安社区（北京）科技有限公司",depart:"硅谷实验室",name: "张竞希"},
+        {company: "国安社区（北京）科技有限公司",depart:"数据开发中心",name: "苏细容"},
+        {company: "国安社区（北京）科技有限公司",depart:"运营管理中心",name: "高月"},
+        {company: "国安社区（北京）科技有限公司",depart:"运营管理中心",name: "付晨璐"},
+        {company: "国安社区（北京）科技有限公司",depart:"运营管理中心",name: "张霞"},
+        {company: "国安社区（北京）科技有限公司",depart:"运营管理中心",name: "贾子旋"},
+        {company: "国安金超（北京）科技有限公司",depart:"财富管理事业部",name: "索海岩"},
+        {company: "国安金超（北京）科技有限公司",depart:"小微金融事业部",name: "邹斌"},
+        {company: "国安金超（北京）科技有限公司",depart:"数据开发中心",name: "李涛"},
+        {company: "国安金超（北京）科技有限公司",depart:"产品管理中心",name: "杨帅"},
+        {company: "国安金超（北京）科技有限公司",depart:"战略发展部",name: "焦彬雪"},
+        {company: "国安金超（北京）科技有限公司",depart:"小微金融事业部",name: "刘洋"},
+        {company: "国安金超（北京）科技有限公司大连分公司",depart:"数据开发部",name: "张敬晖"},
+        {company: "国安金超（北京）科技有限公司大连分公司",depart:"数据开发部",name: "孙业亮"},
+        {company: "国安金超（北京）科技有限公司大连分公司",depart:"数据开发部",name: "宋宏岩"},
+        {company: "国安金超（北京）科技有限公司大连分公司",depart:"数据开发部",name: "荣佳"},
+        {company: "国安金超（北京）科技有限公司大连分公司",depart:"数据开发部",name: "杜佳芯"},
+        {company: "国安金超（北京）科技有限公司大连分公司",depart:"数据开发部",name: "姜钦瀚"},
+        {company: "国安优易（北京）科技有限公司",depart:"资金财务中心",name:"张建敏"},
+        {company: "国安优易（北京）科技有限公司",depart:"综合管理中心",name:"李小京"},
+        {company: "国安优易（北京）科技有限公司",depart:"便利店中心",name:"勾浩瑀"},
+        {company: "国安优易（北京）科技有限公司",depart:"早市中心",name: "潘治诚"},
+        {company: "国安优易（北京）科技有限公司",depart:"资金财务中心",name: "王丽丽"},
+        {company: "国安优易（北京）科技有限公司",depart:"门店管理中心",name: "王贺双"},
+        {company: "国安优易（北京）科技有限公司",depart:"物流中心",name: "姜超"},
+        {company: "国安优易（北京）科技有限公司",depart:"早市中心",name: "赵洪亮"},
+        {company: "国安优易（北京）科技有限公司",depart:"前置仓",name: "徐凯江"},
+        {company: "国安优易（北京）科技有限公司广州分公司",depart:"菜场生鲜组",name: "谢凯"},
+        {company: "国安优易（北京）科技有限公司广州分公司",depart:"菜场生鲜组",name: "陈梓强"},
+        {company: "国安优易（北京）科技有限公司云南分公司",depart:"微超业务中心",name: "张颖超"},
+        {company: "国安优易（北京）科技有限公司云南分公司",depart:"微超业务中心",name: "付红艳"},
+        {company: "国安优易（北京）科技有限公司湖北分公司",depart:"综合管理中心",name: "鲁恒"},
+        {company: "国安优易（北京）科技有限公司贵州分公司",depart:"日用百货组",name: "徐雪"},
+        {company: "国安优易（北京）科技有限公司贵州分公司",depart:"菜场生鲜组",name: "姜文静"},
+        {company: "国安社区（深圳）科技有限公司",depart:"公司领导",name: "周晓芳"},
+        {company: "国安社区（深圳）科技有限公司",depart:"综合管理中心",name: "曹丹"},
+        {company: "国安社区（深圳）科技有限公司",depart:"门店管理中心",name: "胡大懂"},
+        {company: "国安社区（深圳）科技有限公司",depart:"门店管理中心",name: "王美娜"},
+        {company: "国安社区（广州）科技有限公司",depart:"综合管理中心",name: "刘付词"},
+        {company: "国安社区（广州）科技有限公司",depart:"资金财务中心",name: "雷志剑"},
+        {company: "国安社区（广州）科技有限公司",depart:"平台管理中心",name: "黄林基"},
+        {company: "国安社区（广州）科技有限公司",depart:"平台管理中心",name: "赖文君"},
+        {company: "里贤（辽宁）科技有限公司",depart:"门店管理中心",name: "蔡超"},
+        {company: "里贤（辽宁）科技有限公司",depart:"资金财务中心",name: "郭玥"},
+        {company: "里贤（辽宁）科技有限公司",depart:"平台运营中心",name: "李晶"},
+        {company: "里贤（辽宁）科技有限公司",depart:"日用百货组",name: "吕学峰"},
+        {company: "里贤（辽宁）科技有限公司",depart:"综合管理中心",name: "徐秉男"},
+        {company: "里贤（辽宁）科技有限公司",depart:"平台运营中心",name: "张岩"},
+        {company: "里贤（上海）科技有限公司",depart:"门店管理中心",name: "汪家伟"},
+        {company: "里贤（上海）科技有限公司",depart:"平台运营中心",name: "何怡沁"},
+        {company: "里贤（上海）科技有限公司",depart:"公共事务中心",name: "张圣南"},
+        {company: "里贤（上海）科技有限公司",depart:"门店管理中心",name: "李重庆"},
+        {company: "里贤（上海）科技有限公司",depart:"产品管理中心",name: "李程辉"},
+        {company: "里贤（上海）科技有限公司",depart:"产品管理中心",name: "龚皓"},
+        {company: "里贤（上海）科技有限公司",depart:"资金财务中心",name: "陈丽"},
+        {company: "天津国安社区科技有限公司",depart:"综合管理中心",name: "黄乃伦"},
+        {company: "天津国安社区科技有限公司",depart:"平台运营中心",name: "王腾"},
+        {company: "天津国安社区科技有限公司",depart:"平台运营中心",name: "孙瑜"},
+        {company: "天津国安社区科技有限公司",depart:"平台运营中心",name: "吴斌"},
+        {company: "天津国安社区科技有限公司",depart:"综合管理中心",name: "杜春明"},
+        {company: "天津国安社区科技有限公司",depart:"门店管理中心",name: "王洋"},
+        {company: "天津国安社区科技有限公司",depart:"平台运营中心",name: "张龙"},
+        {company: "天津国安社区科技有限公司",depart:"平台运营中心",name: "付海姣"},
+        {company: "里贤（湖北）科技有限公司",depart:"平台运营中心",name: "曾周强"},
+        {company: "里贤（湖北）科技有限公司",depart:"资金财务中心",name: "秦宇婷"},
+        {company: "国安爱科（北京）科技有限公司",depart:"门店管理部",name: "郭春秀"},
+        {company: "国安爱科（北京）科技有限公司",depart:"综合管理中心",name: "周晓旭"},
+        {company: "国安爱科（北京）科技有限公司",depart:"市场推广中心",name: "王伟"},
+        {company: "国安爱科（北京）科技有限公司",depart:"公司领导",name: "于博"},
+        {company: "贵州国安社区智诚连锁购物有限责任公司",depart:"资金财务中心",name: "汪和芳"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"公司领导",name: "张帆"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"综合管理中心",name: "陈天瑞"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"综合管理中心",name: "吴婷婷"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"门店管理中心",name: "高玉琴"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"综合管理中心",name: "吕佳"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"综合管理中心",name: "郑长平"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"综合管理中心",name: "吴航宇"},
+        {company: "国安社区（北京）网络服务有限公司",depart:"平台运营中心",name: "刘志芳"},
+        {company: "云南国安社区信息技术有限公司",depart:"公司领导",name: "王立华"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "阮晓俊"},
+        {company: "云南国安社区信息技术有限公司",depart:"综合管理中心",name: "王鸷"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "黄江"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "王涛"},
+        {company: "云南国安社区信息技术有限公司",depart:"资金财务中心",name: "李云云"},
+        {company: "云南国安社区信息技术有限公司",depart:"综合管理中心",name: "刘铭"},
+        {company: "云南国安社区信息技术有限公司",depart:"资金财务中心",name: "许锐"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "董欣"},
+        {company: "云南国安社区信息技术有限公司",depart:"微超业务中心",name: "冯琼"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "侯姗姗"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "候丽君"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "李慧霞"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "马琛义"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "姜海燕"},
+        {company: "云南国安社区信息技术有限公司",depart:"平台运营中心",name: "李成龙"},
+        {company: "云南国安社区信息技术有限公司",depart:"门店管理中心",name: "吴晓芳"},
+        {company: "贵州国安社区科技有限公司",depart:"公司领导",name: "王轶楠"},
+        {company: "贵州国安社区科技有限公司",depart:"公共事务中心",name: "郭超"},
+        {company: "贵州国安社区科技有限公司",depart:"门店管理中心",name: "何广乾"},
+        {company: "贵州国安社区科技有限公司",depart:"门店管理中心",name: "周亿明"},
+        {company: "贵州国安社区科技有限公司",depart:"资金财务中心",name: "贺晓健"},
+        {company: "贵州国安社区科技有限公司",depart:"综合管理中心",name: "李丽"},
+        {company: "中信国安北京物业公司总部",depart:"公司领导",name: "崔幼玲"},
+        {company: "中信国安北京物业公司总部",depart:"品质管理部",name: "李东涛"},
+        {company: "中信国安北京物业公司总部",depart:"住宅商业事业部",name: "康靖"},
+        {company: "中信国安北京物业公司总部",depart:"行政综合部",name: "范宇恒"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "刘文芳"},
+        {company: "中信国安北京物业公司总部",depart:"人力资源部",name: "时炜"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "解帅帅"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "李亚楠"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "周晓艳"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "陈含星"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "田晓玉"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "李翠翠"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "宁喜春"},
+        {company: "中信国安北京物业公司总部",depart:"增值服务事业部",name: "张玲"},
+        {company: "物业广州分公司",depart:"增值服务事业部",name: "麦泽通"},
+        {company: "物业贵州分公司",depart:"人力资源部",name: "刘媛媛"},
+        {company: "物业贵州分公司",depart:"社区门店",name: "彭馨莹"},
+        {company: "物业贵州分公司",depart:"社区门店",name: "田雷雷"},
+        {company: "物业贵州分公司",depart:"社区门店",name: "吴兴显"},
+        {company: "物业贵州分公司",depart:"社区门店",name: "罗云方"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "熊清和"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "姜汝梅"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "李海燕"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "刘显跃"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "王杰"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "张芝铭"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "李现艳"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "李丽"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "张米"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "来红飞"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "李张平"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "李天富"},
+        {company: "物业昆明分公司",depart:"社区门店",name: "焦志涛"},
+        {company: "物业廊坊分公司",depart:"廊坊分公司",name: "金振宇"},
+        {company: "物业廊坊分公司",depart:"廊坊分公司",name: "靳学技"},
+        {company: "物业廊坊分公司",depart:"廊坊分公司",name: "黄长坤"},
+        {company: "物业上海分公司",depart:"社区门店",name: "冯飞"},
+        {company: "物业上海分公司",depart:"社区门店",name: "兰朦"},
+        {company: "物业上海分公司",depart:"社区门店",name: "贾捷"},
+        {company: "物业深圳分公司",depart:"商业项目",name: "何巧珍"},
+        {company: "物业深圳分公司",depart:"社区门店",name: "连粉蝉"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "刘鸿槿"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "梁可敬"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "徐博"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "杨立娜"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "李博"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "洪晨"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "高峰"},
+        {company: "物业沈阳分公司",depart:"社区门店",name: "王鑫"},
+        {company: "物业天津分公司",depart:"商业项目",name: "张树祥"},
+        {company: "物业天津分公司",depart:"社区门店",name: "闫凯"},
+        {company: "物业天津分公司",depart:"社区门店",name: "陈瑶"},
+        {company: "物业天津分公司",depart:"社区门店",name: "刘鹏"},
+        {company: "物业武汉分公司",depart:"社区门店",name: "王洋"},
+        {company: "物业西藏分公司",depart:"拉萨项目",name: "巴桑拉姆"},
+        {company: "物业西藏分公司",depart:"拉萨项目",name: "李晓娟"},
+        {company: "物业一分公司",depart:"国安府",name: "李健佶"},
+        {company: "物业一分公司",depart:"住宅商业事业部",name: "朱洪"},
+        {company: "物业一分公司",depart:"社区门店",name: "杨芳颖"},
+        {company: "物业一分公司",depart:"呼家楼项目",name: "高千"},
+        {company: "物业一分公司",depart:"资金财务部",name: "郑晴文"},
+        {company: "物业一分公司",depart:"国安府",name: "张朝忠"},
+        {company: "物业一分公司",depart:"国安府",name: "田拥军"},
+        {company: "物业一分公司",depart:"呼家楼项目",name: "张杰"},
+        {company: "物业一分公司",depart:"社区门店",name: "李永明"},
+        {company: "物业一分公司",depart:"社区门店",name: "赵庆"},
+        {company: "物业一分公司",depart:"社区门店",name: "陈亮宇"},
+        {company: "物业一分公司",depart:"呼家楼项目",name: "刘国庆"},
+        {company: "物业一分公司",depart:"社区门店",name: "孙茂军"},
+        {company: "物业一分公司",depart:"社区门店",name: "丁李斌"},
+        {company: "物业一分公司",depart:"社区门店",name: "闻浩"},
+        {company: "物业一分公司",depart:"社区门店",name: "高鹏"},
+        {company: "物业一分公司",depart:"国安府",name: "李雪楠"},
+        {company: "物业一分公司",depart:"社区门店",name: "梁家栋"},
+        {company: "物业一分公司",depart:"社区门店",name: "方平"},
+        {company: "国安瑞",depart:"研发部",name: "袁征"},
+        {company: "国安瑞",depart:"研发部",name: "杨波"},
+        {company: "国安瑞",depart:"战略运营部",name: "刘洋"},
+        {company: "国安瑞",depart:"研发部",name: "叶建克"},
+        {company: "国安瑞",depart:"技术应用部",name: "于明丽"},
+        {company: "国安瑞",depart:"客户中心",name: "刘海霞"},
+        {company: "国安瑞",depart:"研发部",name: "苗家将"},
+        {company: "国安瑞",depart:"综合管理部",name: "闫艺丹"},
+        {company: "北京首佳信房屋拆迁有限公司",depart:"业务管理部",name: "张剑"},
+        {company: "国安家",depart:"公司领导",name: "付贵森"},
+        {company: "国安家",depart:"战略中心",name: "张西玲"},
+        {company: "国安家",depart:"综合中心",name: "张娜"},
+        {company: "国安家",depart:"综合中心",name: "时春艳"},
+        {company: "国安家",depart:"运营中心",name: "付佳炜"},
+        {company: "国安家",depart:"创新地产中心",name: "宋红京"},
+        {company: "国安家",depart:"租房事业部",name: "卿卫文"},
+        {company: "国安家",depart:"新房事业部",name: "刘超"},
+        {company: "国安家",depart:"展示中心",name: "胡莎"},
+        {company: "国安家",depart:"房产频道",name: "童能能"},
+        {company: "国安家",depart:"房产频道",name: "赵彩绘"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"总经理",name: "冯启源"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"生态智能中心",name: "马建伟"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"综合管理中心",name: "李丹宁"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"产品中心",name: "马菲"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"生态事业部",name: "孙景"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"生态事业部",name: "曹慧明"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"市场销售中心",name: "景亚梦"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"PPP中心",name: "张娜娜"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"生态事业部",name: "马一丁"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"生态智能中心",name: "刘慧婷"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"PPP中心",name: "李烁"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"产品中心",name: "孙熙航"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"生态事业部",name: "张朋伟"},
+        {company: "中科同德（北京）生态科技有限公司",depart:"产品中心",name: "胡秀"},
+        {company: "国科创富",depart:"综合管理部",name: "陈磊"},
+        {company: "国科创富",depart:"综合管理部",name: "金晓芳"},
+        {company: "国科创富",depart:"科技服务部",name: "肖飞"},
+        {company: "国科创富",depart:"科技服务部",name: "李霄"},
+        {company: "国科创富",depart:"品牌营销部",name: "彭玲玲"},
+        {company: "北海公司",depart:"公司领导",name: "殷程旭"},
+        {company: "北海公司",depart:"市政基础工作组",name: "罗志恒"},
+        {company: "北海公司",depart:"综合管理部",name: "陈运海"},
+        {company: "北海公司",depart:"战略运营部",name: "邓玮"},
+        {company: "北海公司",depart:"物业分公司",name: "黄晓明"},
+        {company: "北海公司",depart:"综合管理部",name: "吴建茹"},
+        {company: "北海公司",depart:"综合管理部",name: "上官治国"},
+        {company: "北海公司",depart:"综合管理部",name: "张永英"},
+        {company: "北海公司",depart:"资金财务部",name: "周凤"},
+        {company: "北海公司",depart:"工程管理部",name: "吴志坚"},
+        {company: "北海公司",depart:"开发管理部",name: "谭利华"},
+        {company: "北海公司",depart:"开发管理部",name: "万亮亮"},
+        {company: "北海公司",depart:"成本采购部",name: "杨艳琼"},
+        {company: "北海公司",depart:"成本采购部",name: "伍业贞"},
+        {company: "北海公司",depart:"设计管理部",name: "焦如月"},
+        {company: "北海公司",depart:"市政基础工作组",name: "张波"},
+        {company: "北海公司",depart:"市政基础工作组",name: "刘海涛"},
+        {company: "北海公司",depart:"市政基础工作组",name: "苏愈雄"},
+        {company: "北海公司",depart:"市政基础工作组",name: "陈传沛"},
+        {company: "北海公司",depart:"营销管理部",name: "蔡家芳"},
+        {company: "北海公司",depart:"西藏分公司",name: "罗翔"},
+        {company: "北海公司",depart:"文化研究院",name: "苏源鑫"},
+        {company: "北海公司",depart:"文化研究院",name: "孙昌凤"},
+        {company: "北海公司",depart:"战略运营部",name: "王海涛"},
+        {company: "北海公司",depart:"战略运营部",name: "韩传利"},
+        {company: "北海公司",depart:"物业分公司",name: "张卫英"},
+        {company: "北海公司",depart:"物业分公司",name: "严维国"},
+        {company: "北海公司",depart:"物业分公司",name: "夏娟铭"},
+        {company: "北海公司",depart:"物业分公司",name: "张达英"},
+        {company: "北海公司",depart:"物业分公司",name: "林炳伟"},
+        {company: "北海公司",depart:"物业分公司",name: "刘松"},
+        {company: "北海公司",depart:"物业分公司",name: "张辉英"},
+        {company: "北海公司",depart:"物业分公司",name: "童矗"},
+        {company: "北海公司",depart:"物业分公司",name: "彭俊"},
+        {company: "北海公司",depart:"物业分公司",name: "周婵"},
+        {company: "北海公司",depart:"物业分公司",name: "商凯靖"},
+        {company: "上海公司",depart:"公司领导",name: "杜科"},
+        {company: "上海公司",depart:"公司领导",name: "吴建新"},
+        {company: "溧阳公司",depart:"公司领导",name: "石盛发"},
+        {company: "上海公司",depart:"综合管理部",name: "向泽春"},
+        {company: "物业公司苏州分公司",depart:"商管部",name: "别俊慧"},
+        {company: "西藏公司苏州分公司",depart:"渠道部",name: "杨庆"},
+        {company: "上海公司",depart:"综合管理部",name:"宋盈"},
+        {company: "上海公司",depart:"成本合约部",name:"陈维新"},
+        {company: "上海公司",depart:"战略运营部",name:"陶江容"},
+        {company: "上海公司",depart:"成本合约部",name:"张真"},
+        {company: "上海公司",depart:"设计开发部",name:"胡红梅"},
+        {company: "武汉公司",depart:"工程管理部",name:"钱红"},
+        {company: "武汉公司",depart:"综合管理部",name:"刘红"},
+        {company: "武汉公司",depart:"综合管理部",name:"李欣培"},
+        {company: "武汉公司",depart:"综合管理部",name:"柴攀攀"},
+        {company: "武汉公司",depart:"综合管理部",name:"李鸿良"},
+        {company: "溧阳公司",depart:"工程管理部",name:"郝磊"},
+        {company: "峨眉公司",depart:"公司领导",name: "江涛"},
+        {company: "郎茂置业",depart:"公司领导",name: "曾林"},
+        {company: "峨眉公司",depart:"公司领导",name: "周军"},
+        {company: "峨眉公司",depart:"战略运营部",name: "李美玲"},
+        {company: "峨眉公司",depart:"战略运营部",name: "张明伟"},
+        {company: "峨眉公司",depart:"成本采购部",name: "陶冶"},
+        {company: "峨眉公司",depart:"成本采购部",name: "杨琦"},
+        {company: "峨眉公司",depart:"资金财务部",name: "蒋秀英"},
+        {company: "峨眉公司",depart:"设计管理部",name: "周勇"},
+        {company: "峨眉公司",depart:"设计管理部",name: "蔡敬文"},
+        {company: "峨眉公司",depart:"工程管理部",name: "王艳智"},
+        {company: "峨眉公司",depart:"营销管理部",name: "王明庆"},
+        {company: "峨眉公司",depart:"营销管理部",name: "沈瑶"},
+        {company: "峨眉公司",depart:"综合管理部",name: "张永林"},
+        {company: "峨眉公司",depart:"综合管理部",name: "甘维强"},
+        {company: "峨眉公司",depart:"综合管理部",name: "刘昊伟"},
+        {company: "峨眉公司",depart:"综合管理部",name: "陈永涛"},
+        {company: "峨眉公司",depart:"综合管理部",name: "任静"},
+        {company: "峨眉公司",depart:"综合管理部",name: "郑艳波"},
+        {company: "峨眉公司",depart:"峨眉物业",name: "李刚"},
+        {company: "峨眉公司",depart:"峨眉物业",name: "童建川"},
+        {company: "峨眉公司",depart:"峨眉物业",name: "刘明松"},
+        {company: "峨眉公司",depart:"峨眉物业",name: "张会川"},
+        {company: "峨眉公司",depart:"峨眉物业",name: "汪少军"},
+        {company: "峨眉公司",depart:"峨眉物业",name: "游春银"},
+        {company: "海南明远置业有限公司",depart:"公司领导",name: "吴智雄"},
+        {company: "海南明远置业有限公司",depart:"综合管理部",name: "苏亚丽"},
+        {company: "海南明远置业有限公司",depart:"设计管理部",name: "武飞宇"},
+        {company: "海南明远置业有限公司",depart:"前期开发部",name: "黄兴亚"},
+        {company: "中信国安（北京）物业管理有限公司万宁分公司",depart:"综合管理部",name: "曹斯雯"},
+        {company: "中信国安（北京）物业管理有限公司万宁分公司",depart:"综合管理部",name: "郭仁行"},
+        {company: "石家庄公司",depart:"公司领导",name: "武少博"},
+        {company: "石家庄公司",depart:"工程管理部",name: "毕亚敬"},
+        {company: "石家庄公司",depart:"综合管理部",name: "林存勇"},
+        {company: "石家庄公司",depart:"成本采购部",name: "高月"},
+        {company: "石家庄公司",depart:"开发管理部",name: "张舒"},
+        {company: "中信国安重庆城市发展有限公司",depart:"总经办",name: "田茂兴"},
+        {company: "中信国安重庆城市发展有限公司",depart:"财务部",name: "于苏莉"},
+        {company: "中信国安重庆城市发展有限公司",depart:"财务部",name: "况若雯"},
+      ]
+    };
+  },
+  methods: {
+    next() {
+      if(!this.name.trim()){
+        this.msgalert("请填写姓名");
+        return false;
+      }
+      if(this.isrepeatname) {
+        if(this.company.length<=0||this.company[0]=='请选择公司'){
+          this.msgalert("请选择公司");
+          return false;
+        }
+      }
+      this.setItemInfo() //设置用户
+      console.log(this.infoData,77)
+      if(this.infoData.name == '' && this.infoData.company == '') {
+        this.msgalert('您不在此次答题名单，如有疑问请联系管理员！')
+        return false;
+      }
+      this.isRepeatPerson()
+      localStorage.setItem("strategy_name", this.infoData.name)
+      localStorage.setItem("strategy_department", this.infoData.depart)
+      localStorage.setItem("strategy_company", this.infoData.company)
+
+    },
+    handleCompany() {
+      if(this.companyList[0].indexOf(this.company.join()) == -1) {
+        this.company = []
+      }
+      
+    },
+    isRepeatPerson() { // 判断是否答过了
+      var datas = {
+        username:this.infoData.name,
+        depart:this.infoData.depart,
+        company:this.infoData.company,
+        answerday: new Date().getDate()
+      }
+      
+      this.$http.post(this.baseUrl+"CheckExist",datas).then(res => {
+        return res.json()
+      }).then(res => {
+        if(res.Code == 200) {
+          if(res && res.Data == 1) {
+            this.$router.replace({ path: "question"});
+          }else{
+            this.msgalert('今日答题已完成，请明日再来')
+          }
+        }else {
+          // 
+        }
+      })
+    },
+    // 提示窗口
+    showalert(msg) {
+      // 显示
+      this.$vux.alert.show({
+        title: "提示信息",
+        content: msg
+      });
+    },
+    msgalert(msg) {
+      this.$vux.toast.show({
+        text: msg,
+        type: "text"
+      });
+    },
+    confirm() {
+      let me = this;
+      me.$vux.confirm.show({
+        title: "提示信息",
+        content: "您今天已经答过题了，再来一次？",
+        // 组件除show外的属性
+        onCancel() {},
+        onConfirm() {
+          let data = {
+            company: me.company,
+            tel: me.tel,
+            name: me.name
+          };
+          // localStorage.setItem("strategy_company")
+          // alert("xixi" + JSON.stringify(data));
+          me.$router.replace({ path: "/explain", query: data });
+          //  me.$router.replace("explain");
+        }
+      });
+    },
+    handlechange() {
+      if(this.name == '王洋') {
+        this.companyList = [['物业武汉分公司', '天津国安社区科技有限公司']]
+        this.isrepeatname = true
+      }else if(this.name == '高月'){
+        this.companyList = [['国安社区（北京）科技有限公司', '石家庄公司']]
+        this.isrepeatname = true
+      }else if(this.name == '李丽'){
+        this.companyList = [['物业昆明分公司', '贵州国安社区科技有限公司']]
+        this.isrepeatname = true
+      }else if(this.name == '张玲'){
+        this.companyList = [['国安社区（北京）科技有限公司', '中信国安北京物业公司总部']]
+        this.isrepeatname = true
+      }else if(this.name == '刘洋'){
+        this.companyList = [['国安金超（北京）科技有限公司', '国安瑞']]
+        this.isrepeatname = true
+      }else{
+        this.isrepeatname = false
+      }
+      this.handleCompany()
+    },
+    handleblurs() {
+      document.body.scrollTop = '0'; 
+    },
+    setItemInfo() {
+    if(this.isrepeatname) {
+      this.personList.forEach(item => {
+        if(item.name == this.name && (this.company[0]) == item.company) {
+          this.infoData = item
+        }else {
+        }
+      });
+    }else {
+      this.personList.forEach(item => {
+        if(item.name == this.name) {
+          this.infoData = item
+        }else {
+
+        }
+      });
+    }
+  },
+  },
+  
+  mounted() {
+    let name = localStorage.getItem("strategy_name");
+    let company = localStorage.getItem("strategy_company");
+    if(name){
+      this.name = name
+    };
+    if(company){
+      this.company = [company]
+    }
+  }
+};
+</script>
+
+<style scoped>
+
+/* .textContent {
+  width: 90%;
+  position: fixed;
+  top: 7rem;
+  left: 5%;
+  color: #ffffff;
+  font-size: .6rem;
+  line-height: 1rem;
+  text-align: center;
+  padding:10px;
+} */
+.InputText {
+  width: 76%;
+  height: 5.8rem;
+  /* margin: 1rem 0 0 12%; */
+  position: absolute;
+  top: 65%;
+  left: 12%;
+}
+.labelStyle {
+  position: relative;
+  width: 100%;
+  font-size: 0.6rem;
+  height: 1.2rem;
+  margin-bottom: .8rem;
+}
+.labelStyle .tities{
+  color: #E3CC8A;
+  width: 3rem;
+  height: 1.2rem;
+  background: url("../assets/BbtnBg.jpg") center no-repeat/100% 100%;
+  float: left;
+  line-height:1.2rem;
+  text-align: center;
+}
+.tities1{
+  padding-left:.6rem;
+  position: relative;
+  padding-right:0.8rem;
+
+}
+.biji{
+  width: 12.7rem;
+  height: 7rem;
+  /* margin: 6rem 0 0 10%; */
+  position: absolute;
+  bottom: 52%;
+  left: 10%;
+}
+.bijimg{
+    width: 100%;
+  }
+
+.tities1::after{
+  content: "";
+  position: absolute;
+  right: .2rem;
+  height: 100%;
+  width: .6rem;
+  background: url("../assets/sanjiao.png") center no-repeat/80%;
+
+}
+.labelStyle .infos{
+  position: absolute;
+  left: 3.05rem;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background:url("../assets/shadow.jpg") center no-repeat /100% 100%;
+}
+.info_city{
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  line-height:1.2rem;
+  text-align: left;
+  padding-left:1em;
+}
+.labelStyle .leftNamesCard{
+  padding-bottom:0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+.bg {
+  position: fixed;
+  /* position: relative; */
+  width: 100%;
+  height: 100%;
+  background: url("https://img.guoanfamily.com/quesAct/login02.jpg") no-repeat center/cover;
+}
+.position {
+  padding-top:1rem;
+  width: 100%;
+  height: 1.5rem;
+
+}
+.position button{
+  color: #E3CC8A;
+  box-shadow: 1px 1px 1px #555;
+  width: 5.5rem;
+  height: 1.5rem;
+  font-size: 0.7rem;
+  border:none;
+  background: url("../assets/BbtnBg.jpg") center no-repeat/100% 100%;
+
+}
+.button1{
+  margin-left: 27%;
+  text-align: center
+}
+</style>
+<style lang="less">
+.start{
+  .infos{
+    .weui-cell{
+      padding: 0;
+      height: 100%;
+    }
+    .weui-input{
+      height: 100%;
+      padding-left:1em;
+    }
+  }
+}
+
+.weui-dialog__hd {
+  padding-top: 0.5rem;
+}
+.weui-dialog__btn_primary {
+  color: #e40011;
+}
+.labelStyle {
+  .leftName {
+    .weui-label {
+      width: 5rem;
+      text-align: left;
+      color: #0052c2;
+      font-weight: 500;
+    }
+    .weui-input{
+      color:#fff;
+    }
+  }
+  .leftNamesCard {
+    .weui-cell{
+        padding-bottom: 0;
+        height: 100%;
+      }
+    .weui-label {
+      width: 3.5rem;
+      text-align: left;
+      //   background:red;
+      color: #0052c2;
+      font-weight: 500;
+
+    }
+
+    .vux-cell-value{
+      color:#fff;
+    }
+  }
+}
+</style>
+

@@ -1,0 +1,165 @@
+<template>
+   <div class="personList">
+       <div class="list_box">
+           <div class="top_title myfont">
+           </div>
+           <div class="list">
+               <ul>
+                   <li class="people" v-for="(item,index) in personList" :key="item.id">
+                        <div class="Number myfont">{{index+1}}</div>
+                        <!-- <div class="img" :class="{img2:!( item.imageurl && item.imageurl.length > 28)}">
+                            <template v-show="(item.imageurl && item.imageurl.length > 28)">  
+                                <img class="himg" :src="item.imageurl" alt="">
+                            </template>
+                        </div> -->
+                        <div class="name">
+                            {{item.username}}
+                        </div>
+                        <div class="fenshu">{{shs(item.costtime)}}</div>
+                   </li>
+               </ul>
+           </div>
+           <div class="top_title myfont bottom_title">
+           </div>
+
+       </div>
+        <!-- <div class="bottom_box"></div> -->
+   </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            personList:[],
+        }
+    },
+    mounted() {
+        document.body.scrollTop = '0'; 
+        this.getlist()
+    },
+    methods:{
+        getlist(){
+            let datetime =new Date().getDate();
+            let url = this.baseUrl+"GetResultRanking?datetime="+datetime;
+            this.$http.get(url).then(res=>{
+                console.log(123,res);
+                if(res.body.Code==200 && res.body.Data){
+                    if(res.body.Data.length > 0) {
+                        this.personList = res.body.Data
+                    }
+                    
+                }
+
+            })
+        },
+        shs(s){
+            //计算分钟
+            //算法：将秒数除以60，然后下舍入，既得到分钟数
+            var h;
+            h  =   Math.floor(s/60);
+            //计算秒
+            //算法：取得秒%60的余数，既得到秒数
+            s  =   s%60;
+            //将变量转换为字符串
+            h    +=    '';
+            s    +=    '';
+            //如果只有一位数，前面增加一个0
+            h  =   (h.length==1)?'0'+h:h;
+            s  =   (s.length==1)?'0'+s:s;
+            return h+"' "+s+ '"';
+        }
+        // handleData(arr) {
+        //     var Arr = []
+        //     arr.forEach(item => {
+        //         var 
+        //     });
+        // }
+    }
+}
+</script>
+
+<style scoped lang="less">
+.personList{
+    height:100%;
+    left: 100%;
+    overflow-y: auto;
+    .list_box{
+        position: absolute;
+        width: 80%;
+        bottom: 1rem;
+        height: 12rem;
+        left: 10%;
+        top: 0%;
+        .top_title{
+            color: #fff;
+           line-height: 2rem;
+           font-size: 1rem;
+           border-bottom: 2px solid #E3CC8A;
+        }
+        .bottom_title{
+            position: absolute;
+            bottom: -2px;
+            width: 100%;
+        }
+        .list{
+            width: 96%;
+            position: absolute;
+            top:.1rem;
+            overflow-y: auto;
+            padding-top: 0.4rem;
+            margin: 0 2%;
+            bottom: 0rem;
+            background-color: rgba(255, 255, 255, 0.3);
+            .people{
+                margin-bottom: .8rem;
+                height: 1.6rem;
+                .Number{
+                    margin-top: .2rem;
+                    height:1.2rem;
+                    width: 1.2rem;
+                    float: left;
+                    border-radius: 50%;
+                    text-align: center;
+                    color: #fff;
+                    font-size: .8rem;
+                }
+                .img{
+                    margin-left: .8rem;
+                    height:1.6rem;
+                    width: 1.6rem;
+                    float: left;
+                    .himg{
+                        height: 100%;
+                        width: 100%;
+                        vertical-align: top;
+                    }
+                    border-radius: 50%;
+                    overflow: hidden;
+                    &.img2{
+                        background: url("../assets/headers.png")center no-repeat/100% 100%;
+                    }
+                }
+                .name{
+                    line-height:1.6rem;
+                    float: left;
+                    color:#fff;
+                    margin-left: 1rem;
+                    font-size: 0.7rem;
+                }
+                .fenshu{
+                    line-height:1.6rem;
+                    float: right;
+                    color:#fff;
+                    margin: 0 1.2rem 0 0;
+                    font-size: 0.7rem;
+
+                }
+            }
+        }
+
+    }
+
+}
+
+</style>
